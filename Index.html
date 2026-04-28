@@ -24,16 +24,11 @@
             <textarea id="postContent" placeholder="Écris ton message anonyme ici..."></textarea>
             
             <button onclick="publishPost()">Publier sur AHYT</button>
-            <p id="error-msg" style="color: red; display: none;"></p>
         </div>
 
         <div id="feed">
-            <p style="text-align: center; color: #666;">Chargement des messages...</p>
+            <p style="text-align: center; color: #666;">Connexion à la base de données...</p>
         </div>
-
-        <footer>
-            <p>Bienvenue sur AHYT. Les messages sont anonymes.</p>
-        </footer>
     </div>
 
     <script type="module">
@@ -53,7 +48,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // On partage les outils avec le fichier script.js
+        // On rend les outils disponibles pour script.js
         window.db = db;
         window.collection = collection;
         window.addDoc = addDoc;
@@ -62,7 +57,6 @@
         window.onSnapshot = onSnapshot;
         window.serverTimestamp = serverTimestamp;
     </script>
-
     <script src="script.js"></script>
 </body>
 </html>
