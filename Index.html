@@ -50,7 +50,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // On exporte les fonctions en anglais pour le script.js
+  // Ces lignes permettent au fichier script.js d'utiliser Firebase
   window.db = db;
   window.collection = collection;
   window.addDoc = addDoc;
