@@ -20,14 +20,12 @@
                 <option value="Cours">📚 Avis sur les cours</option>
                 <option value="Divers">💡 Divers</option>
             </select>
-
             <textarea id="postContent" placeholder="Écris ton message anonyme ici..."></textarea>
-            
             <button onclick="publishPost()">Publier sur AHYT</button>
         </div>
 
         <div id="feed">
-            <p style="text-align: center; color: #666;">Connexion à la base de données...</p>
+            <p style="text-align: center; color: #666;">Connexion à AHYT en cours...</p>
         </div>
     </div>
 
@@ -48,7 +46,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // On rend les outils disponibles pour script.js
         window.db = db;
         window.collection = collection;
         window.addDoc = addDoc;
