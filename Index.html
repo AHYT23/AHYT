@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AHYT - Expression Anonyme</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AHYT 🗣️</h1>
+            <p class="subtitle">Libère ta parole. Sans photo, sans filtre, sans jugement.</p>
+        </header>
+
+        <div class="post-box">
+            <label for="category">Choisir une catégorie :</label>
+            <select id="category">
+                <option value="Vie Campus">🏫 Vie de Campus</option>
+                <option value="Cours">📚 Avis sur les cours</option>
+                <option value="Confession">🤫 Confession</option>
+                <option value="Coup de Gueule">😤 Coup de Gueule</option>
+                <option value="Positif">✨ Message Positif</option>
+            </select>
+            
+            <textarea id="postContent" placeholder="Que veux-tu dire ? (Noms de famille et insultes interdits)"></textarea>
+            
+            <div id="error-msg" class="error" style="display: none;"></div>
+            
+            <button onclick="publishPost()">Publier sur AHYT</button>
+        </div>
+
+        <div id="feed">
+            <div class="info-message">Bienvenue sur AHYT. Les messages sont anonymes.</div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
