@@ -1,55 +1,62 @@
-// On récupère les outils Firebase que nous avons préparés dans index.html
+// 1. RÉCUPÉRATION DES OUTILS DEPUIS WINDOW (Lien avec index.html)
 const { db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } = window;
 
-// 1. FONCTION POUR PUBLIER UN MESSAGE
+// 2. FONCTION POUR PUBLIER UN MESSAGE
 window.publishPost = async function() {
-    const category = document.getElementById('category').value;
-    const content = document.getElementById('postContent').value;
-    const errorMsg = document.getElementById('error-msg');
-
-    // Vérification de sécurité de base
-    if (content.trim().length < 5) {
-        errorMsg.style.display = 'block';
-        errorMsg.innerText = "Le message est trop court pour être publié !";
+    const categoryElement = document.getElementById('catégorie'); // Vérifie bien l'accent dans index.html
+    const contentElement = document.getElementById('postContent');
+    
+    // Sécurité : Vérifier si les éléments existent
+    if (!categoryElement || !contentElement) {
+        alert("Erreur technique : Éléments HTML introuvables.");
         return;
     }
 
-   try {
-    // Envoi vers la base de données Firebase
-    await AjouterDoc(collection(base de données, "posts"), {
-      catégorie: catégorie,
-      texte: contenu,
-      date: horodatage du serveur()
-    });
+    const category = categoryElement.value;
+    const content = contentElement.value;
 
-    // On vide le champ texte après l'envoi réussi
-    document.getElementById('postContent').value = "";
-    message d'erreur.style.display = 'none';
+    if (content.trim().length < 2) {
+        alert("Ton message est trop court !");
+        return;
+    }
 
-  } catch (erreur) {
-    console.error("Erreur d'envoi : ", erreur);
-    alert("Erreur de connexion. Réessaie !");
-  }
+    try {
+        // Envoi vers la collection "posts" sur Firebase
+        await addDoc(collection(db, "posts"), {
+            category: category,
+            content: content,
+            timestamp: serverTimestamp()
+        });
+        
+        // Nettoyage de la zone de texte
+        contentElement.value = "";
+        alert("✅ Message publié avec succès !");
+    } catch (e) {
+        console.error("Erreur Firebase : ", e);
+        alert("Erreur de connexion : " + e.message);
+    }
 };
 
-// 2. FONCTION POUR LIRE LES MESSAGES (MISE À JOUR AUTOMATIQUE)
-const feed = document.getElementById('feed');
-const q = query(collection(db, "posts"), orderBy("date", "desc"));
-
+// 3. AFFICHAGE DES MESSAGES EN TEMPS RÉEL
+const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
 onSnapshot(q, (snapshot) => {
-    // On vide l'affichage avant de remettre la liste à jour
-    feed.innerHTML = '<div class="info-message">Bienvenue sur Ahyt. Les messages sont anonymes.</div>';
+    const feed = document.getElementById('feed');
+    if (!feed) return;
     
+    feed.innerHTML = ""; // On vide pour mettre à jour
     snapshot.forEach((doc) => {
-        const post = doc.data();
-        const postElement = document.createElement('div');
-        postElement.className = 'post';
+        const data = doc.data();
+        const postDiv = document.createElement('div');
+        postDiv.style.background = "#f9f9f9";
+        postDiv.style.margin = "10px 0";
+        postDiv.style.padding = "15px";
+        postDiv.style.borderRadius = "8px";
+        postDiv.style.borderLeft = "5px solid #333";
         
-        postElement.innerHTML = `
-            <div class="post-category">${post.categorie}</div>
-            <div class="post-content">${post.texte}</div>
-            <div class="post-date">À l'instant</div>
+        postDiv.innerHTML = `
+            <small style="color: #666;">${data.category}</small>
+            <p style="margin: 5px 0 0 0;">${data.content}</p>
         `;
-        feed.appendChild(postElement);
+        feed.appendChild(postDiv);
     });
 });
