@@ -14,21 +14,22 @@ window.publishPost = async function() {
         return;
     }
 
-    try {
-        // Envoi vers la base de données Firebase
-        await addDoc(collection(db, "posts"), {
-            categorie: category,
-            texte: content,
-            date: serverTimestamp()
-        });
-        
-        // On vide le champ texte après l'envoi réussi
-        document.getElementById('postContent').value = "";
-        errorMsg.style.display = 'none';
-    } catch (e) {
-        console.error("Erreur d'envoi : ", e);
-        alert("Erreur de connexion. Réessaie !");
-    }
+   try {
+    // Envoi vers la base de données Firebase
+    await ajouterDoc(collection(base de données, "posts"), {
+      catégorie: catégorie,
+      texte: contenu,
+      date: horodatage du serveur()
+    });
+
+    // On vide le champ texte après l'envoi réussi
+    document.obtenirElementById('postContent').valeur = "";
+    message d'erreur.style.afficher = 'aucun';
+
+  } catch (erreur) {
+    console.error("Erreur d'envoi : ", erreur);
+    alert("Erreur de connexion. Réessaie !");
+  }
 };
 
 // 2. FONCTION POUR LIRE LES MESSAGES (MISE À JOUR AUTOMATIQUE)
