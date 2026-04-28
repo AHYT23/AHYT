@@ -33,29 +33,36 @@
         <div id="feed">
             <div class="info-message">Bienvenue sur AHYT. Les messages sont anonymes.</div>
         </div>
-    </div><script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+<script type="module">
+  // 1. On importe les outils Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  // 2. Ta configuration (ce que tu vois sur ta photo)
   const firebaseConfig = {
-    apiKey: "AIzaSyDWzJJoYgif_cRpY8bWvEpY6-8I7UGBZu0",
+    apiKey: "AIzaSyDWzJJoygif_cRpY8bWvEpY6-8I7UGBZu0",
     authDomain: "ahyt-cec31.firebaseapp.com",
     projectId: "ahyt-cec31",
     storageBucket: "ahyt-cec31.firebasestorage.app",
     messagingSenderId: "762298910459",
-    appId: "1:762298910459:web:630f7a5e80ec4d86a6925e",
+    appId: "1:762298910459:web:630f7a5e80ec4d86a925e",
     measurementId: "G-CSMWYGFTW6"
   };
 
-  // Initialize Firebase
+  // 3. Initialisation de la connexion
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+
+  // 4. On rend tout ça accessible pour ton fichier script.js
+  window.db = db;
+  window.collection = collection;
+  window.addDoc = addDoc;
+  window.query = query;
+  window.orderBy = orderBy;
+  window.onSnapshot = onSnapshot;
+  window.serverTimestamp = serverTimestamp;
 </script>
-    <script src="script.js"></script>
-</body>
-</html>
+
+ 
+
+
