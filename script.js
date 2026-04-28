@@ -1,62 +1,67 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AHYT - Expression Anonyme</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>AHYT</h1>
-            <p class="subtitle">FAUT CHIER AHYT.</p>
-        </header>
+// On attend que les outils soient disponibles
+const initApp = () => {
+    const { db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } = window;
 
-        <div class="post-box">
-            <label for="catégorie">Choisir une catégorie :</label>
-            <select id="catégorie">
-                <option value="Vie de Campus">🏫 Vie de Campus</option>
-                <option value="Cours">📚 Avis sur les cours</option>
-                <option value="Divers">💡 Divers</option>
-            </select>
+    // Vérification : si db n'existe pas, on attend encore 1 seconde
+    if (!db) {
+        setTimeout(initApp, 1000);
+        return;
+    }
 
-            <textarea id="postContent" placeholder="Écris ton message anonyme ici..."></textarea>
+    // 1. FONCTION POUR PUBLIER
+    window.publishPost = async function() {
+        const catElem = document.getElementById('catégorie');
+        const textElem = document.getElementById('postContent');
+
+        if (!catElem || !textElem) return;
+
+        const cat = catElem.value;
+        const texte = textElem.value;
+
+        if (texte.trim().length < 2) {
+            alert("Ton message est trop court !");
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, "posts"), {
+                category: cat,
+                content: texte,
+                timestamp: serverTimestamp()
+            });
+            textElem.value = "";
+            alert("✅ Publié sur AHYT !");
+        } catch (e) {
+            console.error(e);
+            alert("Erreur Firebase : " + e.message);
+        }
+    };
+
+    // 2. AFFICHAGE DES MESSAGES
+    try {
+        const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const feed = document.getElementById('feed');
+            if (!feed) return;
             
-            <button onclick="publishPost()">Publier sur AHYT</button>
-        </div>
+            feed.innerHTML = "";
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const div = document.createElement('div');
+                div.style = "background:white; padding:15px; margin-bottom:10px; border-radius:8px; border-left:5px solid #333; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align:left;";
+                div.innerHTML = `
+                    <small style="color:gray; font-size:12px;">${data.category}</small>
+                    <p style="margin:5px 0 0 0; font-family: sans-serif; color:#333;">${data.content}</p>
+                `;
+                feed.appendChild(div);
+            });
+        }, (error) => {
+            console.log("Erreur de lecture : ", error);
+        });
+    } catch (err) {
+        console.error("Erreur de configuration : ", err);
+    }
+};
 
-        <div id="feed">
-            <p style="text-align: center; color: #666;">Connexion à la base de données...</p>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDWzJJoygif_cRpY8bWvEpY6-8I7UGBZu0",
-            authDomain: "ahyt-cec31.firebaseapp.com",
-            projectId: "ahyt-cec31",
-            storageBucket: "ahyt-cec31.firebasestorage.app",
-            messagingSenderId: "762298910459",
-            appId: "1:762298910459:web:630f7a5e80ec4d86a925e",
-            measurementId: "G-CSMWYGFTW6"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // On rend les outils disponibles pour script.js
-        window.db = db;
-        window.collection = collection;
-        window.addDoc = addDoc;
-        window.query = query;
-        window.orderBy = orderBy;
-        window.onSnapshot = onSnapshot;
-        window.serverTimestamp = serverTimestamp;
-    </script>
-    <script src="script.js"></script>
-</body>
-</html>
+// Lancement de la surveillance
+initApp();
