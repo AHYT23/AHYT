@@ -16,15 +16,15 @@ window.publishPost = async function() {
 
    try {
     // Envoi vers la base de données Firebase
-    await ajouterDoc(collection(base de données, "posts"), {
+    await AjouterDoc(collection(base de données, "posts"), {
       catégorie: catégorie,
       texte: contenu,
       date: horodatage du serveur()
     });
 
     // On vide le champ texte après l'envoi réussi
-    document.obtenirElementById('postContent').valeur = "";
-    message d'erreur.style.afficher = 'aucun';
+    document.getElementById('postContent').value = "";
+    message d'erreur.style.display = 'none';
 
   } catch (erreur) {
     console.error("Erreur d'envoi : ", erreur);
