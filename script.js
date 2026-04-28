@@ -1,62 +1,62 @@
-// 1. RÉCUPÉRATION DES OUTILS DEPUIS WINDOW (Lien avec index.html)
-const { db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } = window;
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AHYT - Expression Anonyme</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AHYT</h1>
+            <p class="subtitle">FAUT CHIER AHYT.</p>
+        </header>
 
-// 2. FONCTION POUR PUBLIER UN MESSAGE
-window.publishPost = async function() {
-    const categoryElement = document.getElementById('catégorie'); // Vérifie bien l'accent dans index.html
-    const contentElement = document.getElementById('postContent');
-    
-    // Sécurité : Vérifier si les éléments existent
-    if (!categoryElement || !contentElement) {
-        alert("Erreur technique : Éléments HTML introuvables.");
-        return;
-    }
+        <div class="post-box">
+            <label for="catégorie">Choisir une catégorie :</label>
+            <select id="catégorie">
+                <option value="Vie de Campus">🏫 Vie de Campus</option>
+                <option value="Cours">📚 Avis sur les cours</option>
+                <option value="Divers">💡 Divers</option>
+            </select>
 
-    const category = categoryElement.value;
-    const content = contentElement.value;
+            <textarea id="postContent" placeholder="Écris ton message anonyme ici..."></textarea>
+            
+            <button onclick="publishPost()">Publier sur AHYT</button>
+        </div>
 
-    if (content.trim().length < 2) {
-        alert("Ton message est trop court !");
-        return;
-    }
+        <div id="feed">
+            <p style="text-align: center; color: #666;">Connexion à la base de données...</p>
+        </div>
+    </div>
 
-    try {
-        // Envoi vers la collection "posts" sur Firebase
-        await addDoc(collection(db, "posts"), {
-            category: category,
-            content: content,
-            timestamp: serverTimestamp()
-        });
-        
-        // Nettoyage de la zone de texte
-        contentElement.value = "";
-        alert("✅ Message publié avec succès !");
-    } catch (e) {
-        console.error("Erreur Firebase : ", e);
-        alert("Erreur de connexion : " + e.message);
-    }
-};
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// 3. AFFICHAGE DES MESSAGES EN TEMPS RÉEL
-const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-onSnapshot(q, (snapshot) => {
-    const feed = document.getElementById('feed');
-    if (!feed) return;
-    
-    feed.innerHTML = ""; // On vide pour mettre à jour
-    snapshot.forEach((doc) => {
-        const data = doc.data();
-        const postDiv = document.createElement('div');
-        postDiv.style.background = "#f9f9f9";
-        postDiv.style.margin = "10px 0";
-        postDiv.style.padding = "15px";
-        postDiv.style.borderRadius = "8px";
-        postDiv.style.borderLeft = "5px solid #333";
-        
-        postDiv.innerHTML = `
-            <small style="color: #666;">${data.category}</small>
-            <p style="margin: 5px 0 0 0;">${data.content}</p>
-        `;
-        feed.appendChild(postDiv);
-    });
-});
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWzJJoygif_cRpY8bWvEpY6-8I7UGBZu0",
+            authDomain: "ahyt-cec31.firebaseapp.com",
+            projectId: "ahyt-cec31",
+            storageBucket: "ahyt-cec31.firebasestorage.app",
+            messagingSenderId: "762298910459",
+            appId: "1:762298910459:web:630f7a5e80ec4d86a925e",
+            measurementId: "G-CSMWYGFTW6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // On rend les outils disponibles pour script.js
+        window.db = db;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.query = query;
+        window.orderBy = orderBy;
+        window.onSnapshot = onSnapshot;
+        window.serverTimestamp = serverTimestamp;
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
