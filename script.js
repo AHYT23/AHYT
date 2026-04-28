@@ -1,51 +1,54 @@
-const bannedWords = ["insulte", "connard", "salaud", "pute", "merde", "idiot", "imbécile"];
+// On récupère les outils Firebase que nous avons préparés dans index.html
+const { db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } = window;
 
-function publishPost() {
-    const contentInput = document.getElementById('postContent');
-    const categoryInput = document.getElementById('category');
+// 1. FONCTION POUR PUBLIER UN MESSAGE
+window.publishPost = async function() {
+    const category = document.getElementById('category').value;
+    const content = document.getElementById('postContent').value;
     const errorMsg = document.getElementById('error-msg');
-    
-    const content = contentInput.value.trim();
-    const category = categoryInput.value;
 
-    if (content.length < 5) {
-        showError("Message trop court pour être publié.");
+    // Vérification de sécurité de base
+    if (content.trim().length < 5) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerText = "Le message est trop court pour être publié !";
         return;
     }
 
-    let isToxic = bannedWords.some(word => content.toLowerCase().includes(word));
-    if (isToxic) {
-        showError("Le contenu ne respecte pas les règles de AHYT.");
-        return;
+    try {
+        // Envoi vers la base de données Firebase
+        await addDoc(collection(db, "posts"), {
+            categorie: category,
+            texte: content,
+            date: serverTimestamp()
+        });
+        
+        // On vide le champ texte après l'envoi réussi
+        document.getElementById('postContent').value = "";
+        errorMsg.style.display = 'none';
+    } catch (e) {
+        console.error("Erreur d'envoi : ", e);
+        alert("Erreur de connexion. Réessaie !");
     }
+};
 
-    errorMsg.style.display = "none";
+// 2. FONCTION POUR LIRE LES MESSAGES (MISE À JOUR AUTOMATIQUE)
+const feed = document.getElementById('feed');
+const q = query(collection(db, "posts"), orderBy("date", "desc"));
 
-    const feed = document.getElementById('feed');
-    const date = new Date().toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+onSnapshot(q, (snapshot) => {
+    // On vide l'affichage avant de remettre la liste à jour
+    feed.innerHTML = '<div class="info-message">Bienvenue sur Ahyt. Les messages sont anonymes.</div>';
     
-    const postDiv = document.createElement('div');
-    postDiv.className = 'post';
-    postDiv.innerHTML = `
-        <div class="post-header">
-            <span class="post-category">${category}</span>
-            <span class="post-date">Il y a un instant</span>
-        </div>
-        <div class="post-content">${escapeHTML(content)}</div>
-    `;
-
-    feed.prepend(postDiv);
-    contentInput.value = "";
-}
-
-function showError(text) {
-    const errorMsg = document.getElementById('error-msg');
-    errorMsg.innerText = text;
-    errorMsg.style.display = "block";
-}
-
-function escapeHTML(str) {
-    const p = document.createElement('p');
-    p.textContent = str;
-    return p.innerHTML;
-}
+    snapshot.forEach((doc) => {
+        const post = doc.data();
+        const postElement = document.createElement('div');
+        postElement.className = 'post';
+        
+        postElement.innerHTML = `
+            <div class="post-category">${post.categorie}</div>
+            <div class="post-content">${post.texte}</div>
+            <div class="post-date">À l'instant</div>
+        `;
+        feed.appendChild(postElement);
+    });
+});
