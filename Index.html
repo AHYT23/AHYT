@@ -46,7 +46,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // On partage les fonctions Firebase avec le fichier script.js
+        // Exportation vers window pour que script.js puisse les voir
         window.db = db;
         window.collection = collection;
         window.addDoc = addDoc;
