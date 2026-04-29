@@ -1,67 +1,46 @@
-// On attend que les outils soient disponibles
-const initApp = () => {
-    const { db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } = window;
+const { db, collection, query, orderBy, onSnapshot } = window;
 
-    // Vérification : si db n'existe pas, on attend encore 1 seconde
+// Fonction pour organiser l'affichage
+const initFeed = () => {
     if (!db) {
-        setTimeout(initApp, 1000);
+        setTimeout(initFeed, 1000);
         return;
     }
 
-    // 1. FONCTION POUR PUBLIER
-    window.publishPost = async function() {
-        const catElem = document.getElementById('catégorie');
-        const textElem = document.getElementById('postContent');
+    const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+    
+    onSnapshot(q, (snapshot) => {
+        const feed = document.getElementById('feed');
+        feed.innerHTML = ""; // On vide tout
 
-        if (!catElem || !textElem) return;
+        // On crée les conteneurs pour chaque catégorie
+        const sections = {
+            "Vie de Campus": document.createElement('div'),
+            "Cours": document.createElement('div'),
+            "Divers": document.createElement('div')
+        };
 
-        const cat = catElem.value;
-        const texte = textElem.value;
-
-        if (texte.trim().length < 2) {
-            alert("Ton message est trop court !");
-            return;
+        // On ajoute des titres à chaque section
+        for (let cat in sections) {
+            sections[cat].innerHTML = `<h3 style="margin-top:20px; border-bottom: 2px solid #333; padding-bottom:5px;">${cat}</h3>`;
+            feed.appendChild(sections[cat]);
         }
 
-        try {
-            await addDoc(collection(db, "posts"), {
-                category: cat,
-                content: texte,
-                timestamp: serverTimestamp()
-            });
-            textElem.value = "";
-            alert("✅ Publié sur AHYT !");
-        } catch (e) {
-            console.error(e);
-            alert("Erreur Firebase : " + e.message);
-        }
-    };
-
-    // 2. AFFICHAGE DES MESSAGES
-    try {
-        const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const feed = document.getElementById('feed');
-            if (!feed) return;
+        // On range chaque message dans la bonne section
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            const postDiv = document.createElement('div');
+            postDiv.style = "background:white; padding:12px; margin:10px 0; border-radius:8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);";
+            postDiv.innerHTML = `<p style="margin:0; font-family: sans-serif;">${data.content}</p>`;
             
-            feed.innerHTML = "";
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const div = document.createElement('div');
-                div.style = "background:white; padding:15px; margin-bottom:10px; border-radius:8px; border-left:5px solid #333; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align:left;";
-                div.innerHTML = `
-                    <small style="color:gray; font-size:12px;">${data.category}</small>
-                    <p style="margin:5px 0 0 0; font-family: sans-serif; color:#333;">${data.content}</p>
-                `;
-                feed.appendChild(div);
-            });
-        }, (error) => {
-            console.log("Erreur de lecture : ", error);
+            // On l'ajoute à la section correspondante
+            if (sections[data.category]) {
+                sections[data.category].appendChild(postDiv);
+            } else {
+                sections["Divers"].appendChild(postDiv);
+            }
         });
-    } catch (err) {
-        console.error("Erreur de configuration : ", err);
-    }
+    });
 };
 
-// Lancement de la surveillance
-initApp();
+initFeed();
