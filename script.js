@@ -1,15 +1,15 @@
 const initApp = () => {
     const { db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } = window;
 
-    // On attend que Firebase soit injecté par l'index.html
+    // 1. On attend que la base de données soit prête
     if (!db) {
         setTimeout(initApp, 500);
         return;
     }
 
-    // --- 1. FONCTION DE PUBLICATION ---
+    // 2. FONCTION POUR PUBLIER UN MESSAGE
     window.publishPost = async function() {
-        const catElem = document.getElementById('catégorie'); // Avec l'accent comme dans ton HTML
+        const catElem = document.getElementById('categorie'); 
         const textElem = document.getElementById('postContent');
 
         if (!catElem || !textElem) return;
@@ -24,19 +24,19 @@ const initApp = () => {
 
         try {
             await addDoc(collection(db, "posts"), {
-                category: cat, // On enregistre la catégorie choisie
+                category: cat,
                 content: texte,
                 timestamp: serverTimestamp()
             });
-            textElem.value = "";
+            textElem.value = ""; // Vide le champ après envoi
             alert("✅ Publié sur AHYT !");
         } catch (e) {
-            console.error("Erreur d'envoi:", e);
-            alert("Erreur : " + e.message);
+            console.error("Erreur Firebase :", e);
+            alert("Erreur lors de l'envoi. Vérifie tes règles Firestore.");
         }
     };
 
-    // --- 2. AFFICHAGE CLASSÉ ET GROUPÉ ---
+    // 3. AFFICHAGE ET CLASSEMENT AUTOMATIQUE
     try {
         const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
         
@@ -44,57 +44,60 @@ const initApp = () => {
             const feed = document.getElementById('feed');
             if (!feed) return;
             
-            feed.innerHTML = ""; // On nettoie l'écran
+            feed.innerHTML = ""; // On nettoie l'écran avant d'afficher
 
-            // LES CATÉGORIES EXACTES (doivent correspondre aux "value" de ton index.html)
+            // Les noms des groupes (doivent être identiques aux "value" du HTML)
             const categories = ["Vie de Campus", "Cours", "GBAIRAI"];
             const sections = {};
 
-            // Création des conteneurs visuels pour chaque groupe
+            // On crée visuellement les titres de catégories
             categories.forEach(cat => {
                 const sectionDiv = document.createElement('div');
-                sectionDiv.style = "margin-bottom: 30px; display: none;"; // Caché par défaut
+                sectionDiv.style = "margin-bottom: 30px; display: none;"; // Caché si vide
                 
-                // Titre du groupe (ex: 🏫 Vie de Campus)
-                sectionDiv.innerHTML = `<h3 style="border-bottom: 2px solid #ff4757; color: #ff4757; padding-bottom: 5px; margin-bottom: 15px; font-family: sans-serif;">${cat}</h3>`;
+                // Style du titre de la catégorie
+                sectionDiv.innerHTML = `<h3 style="border-bottom: 2px solid #000; color: #000; padding-bottom: 5px; margin-bottom: 15px; font-family: sans-serif; text-transform: uppercase; font-size: 1.1em;">${cat}</h3>`;
                 
                 sections[cat] = sectionDiv;
                 feed.appendChild(sectionDiv);
             });
 
-            // On range chaque message dans son groupe respectif
+            // On range chaque message dans son groupe
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 const postDiv = document.createElement('div');
                 
-                // Style des bulles de messages
-                postDiv.style = "background:white; padding:15px; margin-bottom:12px; border-radius:10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 4px solid #ff4757;";
+                // On utilise ta classe CSS .post pour le style
+                postDiv.className = 'post';
                 
-                // Contenu du message
+                const date = data.timestamp ? data.timestamp.toDate().toLocaleString('fr-FR', {hour: '2-digit', minute:'2-digit'}) : 'À l\'instant';
+                
                 postDiv.innerHTML = `
-                    <p style="margin:0; font-family: sans-serif; color:#2d3436; line-height:1.4;">${data.content}</p>
-                    <small style="color:#b2bec3; font-size:10px; display:block; margin-top:8px;">Posté le ${data.timestamp ? data.timestamp.toDate().toLocaleString() : 'à l\'instant'}</small>
+                    <div class="post-header">
+                        <span class="post-category">${data.category}</span>
+                    </div>
+                    <div class="post-content">${data.content}</div>
+                    <small style="color:#999; font-size:10px; display:block; margin-top:10px;">Posté à ${date}</small>
                 `;
                 
-                // On place le message dans la bonne section
+                // Si la catégorie du message existe, on l'ajoute au groupe
                 if (sections[data.category]) {
                     sections[data.category].appendChild(postDiv);
-                    sections[data.category].style.display = "block"; // On affiche la section car elle a un message
+                    sections[data.category].style.display = "block"; // On affiche le titre car il y a un message
                 }
             });
 
-            // Si vraiment aucun message sur le site
             if (snapshot.empty) {
-                feed.innerHTML = "<p style='text-align:center; color:grey;'>Aucun gbairai pour le moment... Sois le premier !</p>";
+                feed.innerHTML = "<p style='text-align:center; color:#666;'>Aucun message pour le moment. Lance le premier gbairai !</p>";
             }
 
         }, (error) => {
-            console.error("Erreur de lecture : ", error);
+            console.error("Erreur de lecture Firestore :", error);
         });
     } catch (err) {
-        console.error("Erreur générale : ", err);
+        console.error("Erreur générale :", err);
     }
 };
 
-// Lancement automatique
+// Lancer l'application
 initApp();
