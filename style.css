@@ -34,17 +34,3 @@ button:hover { background-color: #333; }
 .post-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.75em; }
 .post-category { font-weight: bold; color: #666; }
 .post-content { color: #222; line-height: 1.6; }
-h3 {
-    color: #2c3e50;
-    text-transform: uppercase;
-    font-size: 0.9em;
-    letter-spacing: 1px;
-    margin-bottom: 15px;
-}
-
-#feed > div {
-    margin-bottom: 30px;
-    padding: 10px;
-    background: #f9f9f9;
-    border-radius: 12px;
-}
