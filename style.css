@@ -1,36 +1,100 @@
-body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f8f9fa;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-}
-.container { width: 100%; max-width: 500px; }
-header { text-align: center; margin-bottom: 30px; }
-h1 { color: #000; letter-spacing: 2px; font-size: 2.5em; margin-bottom: 5px; }
-.subtitle { color: #666; font-size: 0.9em; }
-.post-box {
-    background: white; padding: 20px; border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 25px;
-}
-label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.8em; color: #333; }
-select, textarea {
-    width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #eee;
-    margin-bottom: 15px; outline: none; font-size: 1em; box-sizing: border-box;
-}
-textarea { height: 120px; background: #fafafa; }
-button {
-    width: 100%; background-color: #000; color: white; border: none;
-    padding: 15px; border-radius: 10px; font-size: 1em; font-weight: bold;
-    cursor: pointer; transition: 0.3s;
-}
-button:hover { background-color: #333; }
-.error { color: #ff4d4d; font-size: 0.85em; margin-top: 10px; text-align: center; }
-.post {
-    background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #000;
-}
-.post-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.75em; }
-.post-category { font-weight: bold; color: #666; }
-.post-content { color: #222; line-height: 1.6; }
+const initApp = () => {
+    const { db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } = window;
+
+    if (!db) {
+        setTimeout(initApp, 500);
+        return;
+    }
+
+    // --- 1. FONCTION DE PUBLICATION ---
+    window.publishPost = async function() {
+        const catElem = document.getElementById('categorie'); // ID sans accent comme ton dernier index.html
+        const textElem = document.getElementById('postContent');
+
+        if (!catElem || !textElem) return;
+
+        const cat = catElem.value;
+        const texte = textElem.value;
+
+        if (texte.trim().length < 2) {
+            alert("Ton message est trop court !");
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, "posts"), {
+                category: cat,
+                content: texte,
+                timestamp: serverTimestamp()
+            });
+            textElem.value = "";
+            alert("✅ Publié sur AHYT !");
+        } catch (e) {
+            alert("Erreur : " + e.message);
+        }
+    };
+
+    // --- 2. AFFICHAGE ET CLASSEMENT ---
+    try {
+        const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+        
+        onSnapshot(q, (snapshot) => {
+            const feed = document.getElementById('feed');
+            if (!feed) return;
+            
+            feed.innerHTML = ""; // Vide le flux actuel
+
+            // On définit les catégories pour créer les groupes
+            const categories = ["Vie de Campus", "Cours", "GBAIRAI"];
+            const sections = {};
+
+            // On crée les titres de groupes avec le style
+            categories.forEach(cat => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.style.marginBottom = "30px";
+                sectionDiv.style.display = "none"; // Caché par défaut
+                
+                // Titre de la catégorie (ex: 🏫 Vie de Campus)
+                sectionDiv.innerHTML = `<h3 style="border-bottom: 2px solid #000; padding-bottom: 5px; font-size: 1.1em; margin-bottom: 15px;">${cat}</h3>`;
+                
+                sections[cat] = sectionDiv;
+                feed.appendChild(sectionDiv);
+            });
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                
+                // Création du post avec tes classes CSS (.post, .post-header, etc.)
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post'; 
+                
+                const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : "À l'instant";
+
+                postDiv.innerHTML = `
+                    <div class="post-header">
+                        <span class="post-category">${data.category}</span>
+                        <span style="color: #999;">${date}</span>
+                    </div>
+                    <div class="post-content">${data.content}</div>
+                `;
+                
+                // On range le message dans la bonne section
+                if (sections[data.category]) {
+                    sections[data.category].appendChild(postDiv);
+                    sections[data.category].style.display = "block"; // Affiche la section s'il y a des messages
+                }
+            });
+
+            if (snapshot.empty) {
+                feed.innerHTML = "<p style='text-align:center; color:#666;'>Aucun message sur AHYT...</p>";
+            }
+
+        }, (error) => {
+            console.log("Erreur de lecture : ", error);
+        });
+    } catch (err) {
+        console.error("Erreur : ", err);
+    }
+};
+
+initApp();
