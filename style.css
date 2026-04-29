@@ -1,139 +1,126 @@
-/* Style Général */
+/* --- BASE & TYPOGRAPHIE --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f0f2f5;
-    margin: 0;
-    display: flex;
-    justify-content: center;
+    background-color: #ffffff;
+    color: #000000;
+    line-height: 1.5;
     padding: 20px;
 }
 
-.container { 
-    width: 100%; 
-    max-width: 500px; 
+.container {
+    max-width: 500px;
+    margin: 0 auto;
 }
 
-header { 
-    text-align: center; 
-    margin-bottom: 30px; 
+/* --- EN-TÊTE --- */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-top: 20px;
 }
 
-h1 { 
-    color: #000; 
-    letter-spacing: 3px; 
-    font-size: 2.8em; 
-    margin-bottom: 5px;
+h1 {
+    font-size: 3.5rem;
     font-weight: 900;
+    letter-spacing: -3px;
+    margin-bottom: 0;
 }
 
-.subtitle { 
-    color: #666; 
-    font-size: 0.9em;
+.subtitle {
+    font-size: 0.75rem;
     font-weight: bold;
-}
-
-/* Boîte de publication */
-.post-box {
-    background: white; 
-    padding: 20px; 
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-    margin-bottom: 30px;
-}
-
-label { 
-    display: block; 
-    font-weight: bold; 
-    margin-bottom: 10px; 
-    font-size: 0.8em; 
-    color: #333;
+    letter-spacing: 3px;
     text-transform: uppercase;
+    color: #666;
+}
+
+/* --- ZONE D'ÉCRITURE --- */
+.post-box {
+    background: #fff;
+    padding: 0;
+    margin-bottom: 50px;
+}
+
+label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 10px;
 }
 
 select, textarea {
-    width: 100%; 
-    padding: 14px; 
-    border-radius: 12px; 
-    border: 1px solid #e0e0e0;
-    margin-bottom: 15px; 
-    outline: none; 
-    font-size: 1em; 
-    box-sizing: border-box;
-    transition: 0.3s;
+    width: 100%;
+    border: 2px solid #000;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    outline: none;
 }
 
-textarea { 
-    height: 100px; 
-    background: #f9f9f9; 
+textarea {
+    height: 120px;
     resize: none;
 }
 
-textarea:focus {
-    border-color: #000;
-    background: #fff;
-}
-
 button {
-    width: 100%; 
-    background-color: #000; 
-    color: white; 
+    width: 100%;
+    background: #000;
+    color: #fff;
     border: none;
-    padding: 16px; 
-    border-radius: 12px; 
-    font-size: 1em; 
-    font-weight: bold;
-    cursor: pointer; 
-    transition: 0.4s;
-}
-
-button:hover { 
-    background-color: #444; 
-    transform: translateY(-2px);
-}
-
-/* Titres des Catégories (GBAIRAI, COURS...) */
-h3 {
-    font-size: 1em;
-    color: #000;
+    padding: 15px;
+    font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-top: 40px;
-    margin-bottom: 20px;
-    padding-bottom: 8px;
-    border-bottom: 3px solid #000;
-    display: inline-block;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-/* Style des Messages (Posts) */
+button:hover {
+    background: #333;
+}
+
+/* --- AFFICHAGE DES MESSAGES --- */
 .post {
-    background: white; 
-    padding: 18px; 
-    border-radius: 15px; 
-    margin-bottom: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
-    border-left: 6px solid #000; /* La barre noire sur le côté */
-    animation: slideIn 0.5s ease;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+    animation: slideUp 0.4s ease-out;
 }
 
-.post-header {
-    margin-bottom: 8px;
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .post-category {
-    font-size: 0.7em;
+    display: inline-block;
+    background: #000;
+    color: #fff;
+    font-size: 0.6rem;
+    padding: 2px 8px;
     font-weight: bold;
-    color: #999;
+    margin-bottom: 10px;
+}
+
+.post-content {
+    font-size: 1.1rem;
+    font-weight: 500;
+    word-wrap: break-word;
+}
+
+/* --- TITRES DES CATÉGORIES --- */
+h3 {
+    font-size: 1.2rem;
+    font-weight: 900;
     text-transform: uppercase;
-}
-
-.post-content { 
-    color: #1a1a1a; 
-    line-height: 1.5; 
-    font-size: 1.05em;
-}
-
-/* Animation d'apparition */
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    margin-top: 40px;
+    padding-bottom: 10px;
+    border-bottom: 4px solid #000;
 }
