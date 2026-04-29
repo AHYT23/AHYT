@@ -1,100 +1,139 @@
-const initApp = () => {
-    const { db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } = window;
+/* Style Général */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
 
-    if (!db) {
-        setTimeout(initApp, 500);
-        return;
-    }
+.container { 
+    width: 100%; 
+    max-width: 500px; 
+}
 
-    // --- 1. FONCTION DE PUBLICATION ---
-    window.publishPost = async function() {
-        const catElem = document.getElementById('categorie'); // ID sans accent comme ton dernier index.html
-        const textElem = document.getElementById('postContent');
+header { 
+    text-align: center; 
+    margin-bottom: 30px; 
+}
 
-        if (!catElem || !textElem) return;
+h1 { 
+    color: #000; 
+    letter-spacing: 3px; 
+    font-size: 2.8em; 
+    margin-bottom: 5px;
+    font-weight: 900;
+}
 
-        const cat = catElem.value;
-        const texte = textElem.value;
+.subtitle { 
+    color: #666; 
+    font-size: 0.9em;
+    font-weight: bold;
+}
 
-        if (texte.trim().length < 2) {
-            alert("Ton message est trop court !");
-            return;
-        }
+/* Boîte de publication */
+.post-box {
+    background: white; 
+    padding: 20px; 
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+    margin-bottom: 30px;
+}
 
-        try {
-            await addDoc(collection(db, "posts"), {
-                category: cat,
-                content: texte,
-                timestamp: serverTimestamp()
-            });
-            textElem.value = "";
-            alert("✅ Publié sur AHYT !");
-        } catch (e) {
-            alert("Erreur : " + e.message);
-        }
-    };
+label { 
+    display: block; 
+    font-weight: bold; 
+    margin-bottom: 10px; 
+    font-size: 0.8em; 
+    color: #333;
+    text-transform: uppercase;
+}
 
-    // --- 2. AFFICHAGE ET CLASSEMENT ---
-    try {
-        const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-        
-        onSnapshot(q, (snapshot) => {
-            const feed = document.getElementById('feed');
-            if (!feed) return;
-            
-            feed.innerHTML = ""; // Vide le flux actuel
+select, textarea {
+    width: 100%; 
+    padding: 14px; 
+    border-radius: 12px; 
+    border: 1px solid #e0e0e0;
+    margin-bottom: 15px; 
+    outline: none; 
+    font-size: 1em; 
+    box-sizing: border-box;
+    transition: 0.3s;
+}
 
-            // On définit les catégories pour créer les groupes
-            const categories = ["Vie de Campus", "Cours", "GBAIRAI"];
-            const sections = {};
+textarea { 
+    height: 100px; 
+    background: #f9f9f9; 
+    resize: none;
+}
 
-            // On crée les titres de groupes avec le style
-            categories.forEach(cat => {
-                const sectionDiv = document.createElement('div');
-                sectionDiv.style.marginBottom = "30px";
-                sectionDiv.style.display = "none"; // Caché par défaut
-                
-                // Titre de la catégorie (ex: 🏫 Vie de Campus)
-                sectionDiv.innerHTML = `<h3 style="border-bottom: 2px solid #000; padding-bottom: 5px; font-size: 1.1em; margin-bottom: 15px;">${cat}</h3>`;
-                
-                sections[cat] = sectionDiv;
-                feed.appendChild(sectionDiv);
-            });
+textarea:focus {
+    border-color: #000;
+    background: #fff;
+}
 
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                
-                // Création du post avec tes classes CSS (.post, .post-header, etc.)
-                const postDiv = document.createElement('div');
-                postDiv.className = 'post'; 
-                
-                const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : "À l'instant";
+button {
+    width: 100%; 
+    background-color: #000; 
+    color: white; 
+    border: none;
+    padding: 16px; 
+    border-radius: 12px; 
+    font-size: 1em; 
+    font-weight: bold;
+    cursor: pointer; 
+    transition: 0.4s;
+}
 
-                postDiv.innerHTML = `
-                    <div class="post-header">
-                        <span class="post-category">${data.category}</span>
-                        <span style="color: #999;">${date}</span>
-                    </div>
-                    <div class="post-content">${data.content}</div>
-                `;
-                
-                // On range le message dans la bonne section
-                if (sections[data.category]) {
-                    sections[data.category].appendChild(postDiv);
-                    sections[data.category].style.display = "block"; // Affiche la section s'il y a des messages
-                }
-            });
+button:hover { 
+    background-color: #444; 
+    transform: translateY(-2px);
+}
 
-            if (snapshot.empty) {
-                feed.innerHTML = "<p style='text-align:center; color:#666;'>Aucun message sur AHYT...</p>";
-            }
+/* Titres des Catégories (GBAIRAI, COURS...) */
+h3 {
+    font-size: 1em;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 3px solid #000;
+    display: inline-block;
+}
 
-        }, (error) => {
-            console.log("Erreur de lecture : ", error);
-        });
-    } catch (err) {
-        console.error("Erreur : ", err);
-    }
-};
+/* Style des Messages (Posts) */
+.post {
+    background: white; 
+    padding: 18px; 
+    border-radius: 15px; 
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
+    border-left: 6px solid #000; /* La barre noire sur le côté */
+    animation: slideIn 0.5s ease;
+}
 
-initApp();
+.post-header {
+    margin-bottom: 8px;
+}
+
+.post-category {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: #999;
+    text-transform: uppercase;
+}
+
+.post-content { 
+    color: #1a1a1a; 
+    line-height: 1.5; 
+    font-size: 1.05em;
+}
+
+/* Animation d'apparition */
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
