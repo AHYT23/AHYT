@@ -5,8 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AHYT - Expression Anonyme</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Design de la bannière de notification */
+        #notification-banner {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 50px;
+            z-index: 9999;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            font-weight: bold;
+            border: 2px solid #fff;
+            animation: slideDown 0.5s ease;
+            font-family: sans-serif;
+        }
+
+        @keyframes slideDown {
+            from { top: -60px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
+        }
+    </style>
 </head>
 <body>
+
+    <div id="notification-banner">
+        🔔 Nouveau Gbairai en ligne !
+    </div>
+
     <div class="container">
         <header>
             <h1>AHYT</h1>
@@ -46,7 +76,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // On partage la connexion avec ton fichier script.js
+        // On partage les fonctions avec script.js
         window.db = db;
         window.collection = collection;
         window.addDoc = addDoc;
